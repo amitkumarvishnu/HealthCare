@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; 
 import { useFormik } from "formik";
 import Joi from "joi";
 
@@ -24,7 +24,6 @@ const Login = ({
         "any.required": "Email is required",
         "string.email": "Please enter a valid email address",
       }),
-
     password: Joi.string()
       .min(6)
       .required()
@@ -45,12 +44,10 @@ const Login = ({
       const errors = {};
 
       if (error) {
-        // Map Joi validation errors to Formik's errors
         error.details.forEach((err) => {
           errors[err.path[0]] = err.message;
         });
       }
-
       return errors;
     },
     onSubmit: async (values) => {
@@ -83,7 +80,7 @@ const Login = ({
           localStorage.setItem("doctorId", receivedDoctorId);
           navigate("/doctor-dashboard");
         } else {
-          navigate("/");
+          navigate("/dashboard");
         }
       } catch (error) {
         console.error("Login failed", error.response ? error.response.data : error);
@@ -96,62 +93,100 @@ const Login = ({
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-200 to-blue-300">
-      <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md border border-gray-300">
-        <h2 className="text-4xl font-bold text-center text-green-600 mb-6">
-          Healthcare Login
-        </h2>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form onSubmit={formik.handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={formik.values.email}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder="Email"
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-            {formik.errors.email && formik.touched.email && (
-              <div className="text-red-500 text-sm">{formik.errors.email}</div>
-            )}
+    <div>
+      <Link to="/" className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-400 mt-6 self-start ml-10 tracking-wide shadow-lg">
+        Healthcare
+      </Link>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+        <div className="hidden md:flex items-center justify-center p-10 relative">
+          <img
+            src="HealthCare UI.png"
+            alt="Login Illustration"
+            className="w-200"
+          />
+          <div className="absolute" style={{ top: '12vh', left: '6vw', color: 'white' }}>
+            <h2 className="text-3xl font-semibold">Looking for an Expert</h2>
+            <p className=" text-lg">Healthcare is home to some of the </p>
+            <h className=" text-lg">eminent doctors in the world.</h>
           </div>
+        </div>
 
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-1">Password:</label>
-            <input
-              type="password"
-              name="password"
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder="Password"
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-            {formik.errors.password && formik.touched.password && (
-              <div className="text-red-500 text-sm">{formik.errors.password}</div>
-            )}
-          </div>
+        {/* Enhanced Form Container with hover and transition effects */}
+        <div className="bg-white p-10 rounded-lg shadow-2xl max-w-md mx-auto transform transition-all duration-300 hover:scale-105 hover:shadow-3xl hover:bg-gray-100">
+          <h2 className="text-3xl font-bold text-center text-blue-600 mb-8">
+            Login
+          </h2>
 
-          <button
-            type="submit"
-            className={`w-full p-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200 ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={loading}
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+          {/* Display error message */}
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-        <p className="mt-6 text-center text-gray-700">
-          Don't have an account?{" "}
-          <a href="/register" className="text-green-600 hover:underline">
-            Register
-          </a>
-        </p>
+          <form onSubmit={formik.handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder="Email address"
+                className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              {formik.errors.email && formik.touched.email && (
+                <span className="text-sm text-red-500">
+                  {formik.errors.email}
+                </span>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder="Password"
+                className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              {formik.errors.password && formik.touched.password && (
+                <span className="text-sm text-red-500">
+                  {formik.errors.password}
+                </span>
+              )}
+            </div>
+
+            <div className="text-right mb-4">
+              <a href="/forgot-password" className="text-blue-600 text-sm">
+                Forgot Password?
+              </a>
+            </div>
+
+            {/* Enhanced Login Button with hover and transition effects */}
+            <button
+              type="submit"
+              className={`w-full py-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 hover:shadow-md transition duration-300 ${loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </form>
+
+          {/* for navigating to register */}
+          <p className="mt-6 text-center text-gray-600">
+            Don't have an account?{" "}
+            <a href="/register" className="text-blue-600 font-semibold">
+              Register
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );

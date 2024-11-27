@@ -13,9 +13,9 @@ const TimeSlot = sequelize.define('TimeSlot', {
         onDelete: 'CASCADE', // Optional: Deletes time slots if the doctor is deleted.
     },
     date: {
-        type: DataTypes.DATE, // Ensure this is a valid DATE or DATETIME
-        allowNull: false, // Make sure the date field is not null or give a default value
-        defaultValue: sequelize.fn('NOW'), // Set current date and time as default
+        type: DataTypes.DATE, 
+        allowNull: false,
+        defaultValue: sequelize.fn('NOW'), 
     },
     startTime: { 
         type: DataTypes.TIME,

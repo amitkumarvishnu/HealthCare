@@ -17,26 +17,37 @@ exports.getConsultationRequests = async (req, res) => {
             include: [{ model: User, as: 'Patient', attributes: ['id', 'username', 'email'] }],
         });
 
+        // Check if consultations are found...
         if (!consultations.length) {
             return res.status(404).json({ message: 'No consultation requests found.' });
         }
 
+        // Map the consultation data to the response format
         const response = consultations.map(consultation => ({
             id: consultation.id,
             patientId: consultation.patientId,
             doctorId: consultation.doctorId,
             status: consultation.status,
-            imageUrl: `${baseUrl}${consultation.imageUrl.replace(/\\/g, '/')}`,
+            // Handle multiple image URLs
+            imageUrls: consultation.imageUrls ? consultation.imageUrls.map(url => `${baseUrl}${url.replace(/\\/g, '/')}`) : [],
             patientUsername: consultation.Patient.username,
             patientEmail: consultation.Patient.email,
-            description: consultation.description, 
+            description: consultation.description,
+            date: consultation.date, // Ensure date is included
+            startTime: consultation.startTime, // Include start time
+            endTime: consultation.endTime, // Include end time
         }));
 
+        // Send the response
         res.json(response);
     } catch (error) {
+        console.error('Error fetching consultation requests:', error);
         res.status(500).json({ error: 'Failed to fetch requests' });
     }
 };
+
+
+
 
 // Update consultation status 
 exports.updateConsultationStatus = async (req, res) => {

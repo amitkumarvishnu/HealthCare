@@ -41,19 +41,31 @@ const getTimeSlots = async (req, res) => {
     try {
         const slots = await TimeSlot.findAll({
             where: { doctorId },
-            order: [ ['date', 'ASC'], ['startTime', 'ASC']], // Sort by date and then by startTime
+            order: [['date', 'ASC'], ['startTime', 'ASC']],
+            attributes: ['id', 'date', 'startTime', 'endTime', 'isAvailable'], // Include 'id' here
         });
 
         if (!slots.length) {
             return res.status(404).json({ message: 'No time slots found for this doctor' });
         }
 
-        res.status(200).json({ slots });
+        // Format the response to include date and time information
+        const formattedSlots = slots.map(slot => ({
+            id: slot.id,  // Add id to the formatted response
+            date: slot.date,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            isAvailable: slot.isAvailable,
+        }));
+
+        res.status(200).json({ slots: formattedSlots });
     } catch (error) {
         console.error('Error fetching time slots:', error);
         res.status(500).json({ error: 'Failed to fetch time slots' });
     }
 };
+
+
 
 // Update a specific time slot
 const updateTimeSlot = async (req, res) => {

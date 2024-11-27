@@ -14,11 +14,12 @@ require('dotenv').config();
 
 const app = express();
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-// Middleware
+
+// Middleware...
 app.use(cors());
 app.use(express.json()); 
 
-// Routes
+// Routes...
 app.use('/api/auth', authRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/doctors', doctorRoutes);
@@ -26,7 +27,7 @@ app.use('/api', timeSlotRoutes);
 
 const PORT = process.env.PORT;
 
-sequelize.sync({alter:true})
+sequelize.sync()
     .then(() => {
         app.listen(PORT, () => {
             console.log(`Server is running on http://localhost:${PORT}`);

@@ -4,30 +4,26 @@ import axios from 'axios';
 const DoctorTimeSlots = ({ doctorId }) => {
     const [timeSlots, setTimeSlots] = useState([]);
     const [newSlot, setNewSlot] = useState({ date: '', startTime: '', endTime: '', isAvailable: true });
-    const [editingSlot, setEditingSlot] = useState(null);
+    const [editingSlot, setEditingSlot] = useState({ id: null, date: '', startTime: '', endTime: '', isAvailable: true });
     const [loading, setLoading] = useState(false);
 
-    // Function to format the date (optional: use libraries like moment.js or date-fns for more control)
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString(); // Formats the date in the user's local format
+        return date.toISOString().split('T')[0]; // Format date to yyyy-MM-dd
     };
 
-    // Function to format the time (HH:mm)
-    const formatTime = (timeString) => {
-        if (!timeString) return '';  // Return empty string if timeString is invalid
-        const [hours, minutes] = timeString.split(':');
-        return `${hours}:${minutes}`;
+    const getTodayDate = () => {
+        const today = new Date();
+        return today.toISOString().split('T')[0]; // Format date to yyyy-MM-dd
     };
 
-    // Fetch existing time slots for the doctor
     useEffect(() => {
         const fetchTimeSlots = async () => {
             try {
                 const response = await axios.get(`http://localhost:5000/api/doctor/${doctorId}/time-slots`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                 });
-                setTimeSlots(response.data.slots || []); // Assuming the response contains a slots array
+                setTimeSlots(response.data.slots || []);
             } catch (error) {
                 console.error('Error fetching time slots:', error.response || error);
             }
@@ -36,23 +32,20 @@ const DoctorTimeSlots = ({ doctorId }) => {
         fetchTimeSlots();
     }, [doctorId]);
 
-    // Handle creating a new time slot
     const handleCreateSlot = async () => {
-        if (!newSlot.date || !newSlot.startTime || !newSlot.endTime) {
-            return; // Prevent empty time slots from being created
-        }
+        if (!newSlot.date || !newSlot.startTime || !newSlot.endTime) return;
 
         setLoading(true);
         try {
             const response = await axios.post(
                 `http://localhost:5000/api/doctor/${doctorId}/time-slots`,
-                { slots: [newSlot] }, // Pass slots as an array
+                { slots: [newSlot] },
                 {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                 }
             );
-            setTimeSlots([...timeSlots, ...response.data.slots]); // Add new slots to the list
-            setNewSlot({ date: '', startTime: '', endTime: '', isAvailable: true }); // Clear the input fields
+            setTimeSlots([...timeSlots, ...response.data.slots]);
+            setNewSlot({ date: '', startTime: '', endTime: '', isAvailable: true });
         } catch (error) {
             console.error('Error creating time slot:', error.response || error);
         } finally {
@@ -60,16 +53,16 @@ const DoctorTimeSlots = ({ doctorId }) => {
         }
     };
 
-    // Handle updating an existing time slot
-    const handleUpdateSlot = async (timeSlotId) => {
-        if (!editingSlot.date || !editingSlot.startTime || !editingSlot.endTime) {
-            return; // Prevent updating if the time fields are empty
+    const handleUpdateSlot = async () => {
+        if (!editingSlot.id || !editingSlot.date || !editingSlot.startTime || !editingSlot.endTime) {
+            console.error("Invalid editingSlot data", editingSlot);
+            return;
         }
 
         setLoading(true);
         try {
             const response = await axios.put(
-                `http://localhost:5000/api/doctor/${doctorId}/time-slot/${timeSlotId}`,
+                `http://localhost:5000/api/doctor/${doctorId}/time-slot/${editingSlot.id}`,
                 {
                     date: editingSlot.date,
                     startTime: editingSlot.startTime,
@@ -80,10 +73,14 @@ const DoctorTimeSlots = ({ doctorId }) => {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                 }
             );
-            setTimeSlots(timeSlots.map(slot => 
-                slot.id === timeSlotId ? response.data.slot : slot
+            const updatedSlot = {
+                ...response.data.slot,
+                date: formatDate(response.data.slot.date), // Format date here
+            };
+            setTimeSlots(timeSlots.map(slot =>
+                slot.id === editingSlot.id ? updatedSlot : slot
             ));
-            setEditingSlot(null); // Close the editing form
+            setEditingSlot({ id: null, date: '', startTime: '', endTime: '', isAvailable: true });
         } catch (error) {
             console.error('Error updating time slot:', error.response || error);
         } finally {
@@ -91,19 +88,19 @@ const DoctorTimeSlots = ({ doctorId }) => {
         }
     };
 
-    // Handle deleting a time slot
     const handleDeleteSlot = async (timeSlotId) => {
+        const confirmed = window.confirm("Are you sure you want to delete this time slot?");
+        if (!confirmed) return;
+
         setLoading(true);
         try {
-            // Make the API call to delete the time slot
             await axios.delete(
                 `http://localhost:5000/api/doctor/${doctorId}/time-slot/${timeSlotId}`,
                 {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                 }
             );
-            // Once deleted, remove the time slot from the state (UI update)
-            setTimeSlots(timeSlots.filter(slot => slot.id !== timeSlotId)); // Remove the deleted slot
+            setTimeSlots(timeSlots.filter(slot => slot.id !== timeSlotId));
         } catch (error) {
             console.error('Error deleting time slot:', error.response || error);
         } finally {
@@ -113,9 +110,6 @@ const DoctorTimeSlots = ({ doctorId }) => {
 
     return (
         <div className="p-6 bg-gradient-to-r from-indigo-100 to-blue-100 min-h-screen">
-            {/* <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Manage Your Time Slots</h2> */}
-
-            {/* Create Time Slot Form */}
             <div className="bg-gradient-to-r from-teal-400 to-blue-500 p-8 rounded-lg shadow-xl mb-8">
                 <h3 className="text-3xl font-semibold text-white mb-6 text-center">Create a New Time Slot</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -123,6 +117,7 @@ const DoctorTimeSlots = ({ doctorId }) => {
                         type="date"
                         value={newSlot.date}
                         onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })}
+                        min={getTodayDate()}
                         className="p-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-300"
                         required
                     />
@@ -150,7 +145,6 @@ const DoctorTimeSlots = ({ doctorId }) => {
                 </div>
             </div>
 
-            {/* Existing Time Slots */}
             <div className="bg-white p-8 rounded-lg shadow-xl mb-8">
                 <h3 className="text-2xl font-semibold text-gray-800 mb-6">Existing Time Slots</h3>
                 <ul className="space-y-6">
@@ -158,63 +152,66 @@ const DoctorTimeSlots = ({ doctorId }) => {
                         <p>No time slots available.</p>
                     ) : (
                         timeSlots.map((slot) => (
-                            <li key={slot.id} className="flex flex-col sm:flex-row items-center p-6 border border-gray-300 rounded-lg shadow-md hover:shadow-lg transition duration-300">
-                                {editingSlot?.id === slot.id ? (
+                            <li key={slot.id} className="flex flex-col sm:flex-row items-center p-6 border border-gray-300 rounded-lg shadow-md hover:shadow-lg transition duration-300 bg-gray-50">
+                                {editingSlot.id === slot.id ? (
                                     <div className="flex flex-wrap justify-between items-center w-full">
                                         <input
                                             type="date"
                                             value={editingSlot.date}
                                             onChange={(e) => setEditingSlot({ ...editingSlot, date: e.target.value })}
-                                            className="p-4 border-2 border-gray-300 rounded-xl mr-4 mb-4 sm:mb-0"
+                                            className="p-2 border-2 border-gray-300 rounded-lg mr-2"
                                         />
                                         <input
                                             type="time"
                                             value={editingSlot.startTime}
                                             onChange={(e) => setEditingSlot({ ...editingSlot, startTime: e.target.value })}
-                                            className="p-4 border-2 border-gray-300 rounded-xl mr-4 mb-4 sm:mb-0"
+                                            className="p-2 border-2 border-gray-300 rounded-lg mr-2"
                                         />
                                         <input
                                             type="time"
                                             value={editingSlot.endTime}
                                             onChange={(e) => setEditingSlot({ ...editingSlot, endTime: e.target.value })}
-                                            className="p-4 border-2 border-gray-300 rounded-xl mr-4 mb-4 sm:mb-0"
+                                            className="p-2 border-2 border-gray-300 rounded-lg mr-2"
                                         />
-                                        <select
-                                            value={editingSlot.isAvailable}
-                                            onChange={(e) => setEditingSlot({ ...editingSlot, isAvailable: e.target.value === 'true' })}
-                                            className="p-4 border-2 border-gray-300 rounded-xl mr-4 mb-4 sm:mb-0"
-                                        >
-                                            <option value="true">Available</option>
-                                            <option value="false">Unavailable</option>
-                                        </select>
-                                        <button
-                                            onClick={() => handleUpdateSlot(slot.id)}
-                                            className="p-4 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300"
-                                        >
+                                        <div className="flex items-center mr-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={editingSlot.isAvailable}
+                                                onChange={(e) => setEditingSlot({ ...editingSlot, isAvailable: e.target.checked })}
+                                                className="mr-2"
+                                            />
+                                            <label className="text-gray-700">Available</label>
+                                        </div>
+                                        <button onClick={handleUpdateSlot} className="p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 mr-2">
                                             Update
                                         </button>
-                                        <button
-                                            onClick={() => setEditingSlot(null)}
-                                            className="p-4 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300 ml-4"
-                                        >
+                                        <button onClick={() => setEditingSlot({ id: null, date: '', startTime: '', endTime: '', isAvailable: true })} className="p-2 bg-red-500 text-white rounded hover:bg-red-600">
                                             Cancel
                                         </button>
                                     </div>
                                 ) : (
                                     <div className="flex justify-between items-center w-full">
-                                        <span className="text-lg font-semibold text-gray-700">{formatDate(slot.date)} {formatTime(slot.startTime)} - {formatTime(slot.endTime)}</span>
-                                        <span className={`text-lg font-semibold ${slot.isAvailable ? 'text-green-600' : 'text-red-600'}`}>{slot.isAvailable ? 'Available' : 'Unavailable'}</span>
+                                        <div className="flex flex-col">
+                                            <p className="font-semibold">
+                                                Date: {formatDate(slot.date)}, Start Time: {slot.startTime} - End Time: {slot.endTime}
+                                            </p>
+                                            <p className={`text-gray-600 ${slot.isAvailable ? 'text-green-600' : 'text-red-600'}`}>
+                                                {slot.isAvailable ? 'Available' : 'Unavailable'}
+                                            </p>
+                                        </div>
                                         <div>
-                                            <button
-                                                onClick={() => setEditingSlot({ id: slot.id, date: slot.date, startTime: slot.startTime, endTime: slot.endTime, isAvailable: slot.isAvailable })}
-                                                className="p-4 bg-blue-500 text-white rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300 mr-4"
-                                            >
+                                            <button onClick={() => {
+                                                setEditingSlot({
+                                                    id: slot.id,
+                                                    date: formatDate(slot.date),
+                                                    startTime: slot.startTime,
+                                                    endTime: slot.endTime,
+                                                    isAvailable: slot.isAvailable
+                                                });
+                                            }} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2">
                                                 Edit
                                             </button>
-                                            <button
-                                                onClick={() => handleDeleteSlot(slot.id)}
-                                                className="p-4 bg-red-500 text-white rounded-xl hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300"
-                                            >
+                                            <button onClick={() => handleDeleteSlot(slot.id)} className="p-2 bg-red-500 text-white rounded hover:bg-red-600">
                                                 Delete
                                             </button>
                                         </div>

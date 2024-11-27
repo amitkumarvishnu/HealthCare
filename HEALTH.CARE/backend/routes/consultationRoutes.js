@@ -3,7 +3,8 @@ const multer = require('multer');
 const {
     getDoctors,
     requestConsultation,
-    getConsultationStatus
+    getConsultationStatus,
+    updateDoctor
 } = require('../controllers/consultationController');
 const authMiddleware = require('../middleware/authMiddleware');
 const checkRole = require('../middleware/checkRole'); 
@@ -21,8 +22,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.get('/doctors', authMiddleware, getDoctors);
-router.post('/request', authMiddleware, upload.single('image'), requestConsultation);
+router.get('/doctors', getDoctors);
+router.put('/updateDoctor/:id', updateDoctor);
+router.post('/request', authMiddleware, upload.array('images', 5), requestConsultation);
 router.get('/status/:patientId', authMiddleware, checkRole(['patient']), getConsultationStatus);
 
 

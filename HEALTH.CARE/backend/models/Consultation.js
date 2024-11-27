@@ -20,8 +20,8 @@ const Consultation = sequelize.define('Consultation', {
             key: 'id',
         },
     },
-    imageUrl: {
-        type: DataTypes.STRING,
+    imageUrls: { // Changed from imageUrl to imageUrls
+        type: DataTypes.JSON, // Or use DataTypes.ARRAY(DataTypes.STRING) for PostgreSQL
         allowNull: false,
     },
     description: {
@@ -33,7 +33,19 @@ const Consultation = sequelize.define('Consultation', {
         allowNull: false,
         defaultValue: 'pending'
     },
+    date: {
+        type: DataTypes.DATE, 
+        allowNull: false,
+        defaultValue: sequelize.fn('NOW'), 
+    },
+    startTime: { 
+        type: DataTypes.TIME,
+        allowNull: false,
+    },
+    endTime: { 
+        type: DataTypes.TIME,
+        allowNull: false,
+    },
 });
-
 
 module.exports = Consultation;

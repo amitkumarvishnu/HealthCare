@@ -10,7 +10,7 @@ const Status = ({ patientId, userRole }) => {
                 const response = await axios.get(`http://localhost:5000/api/consultations/status/${patientId}`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
-                console.log("API Response:", response.data); // Log response to inspect structure
+                console.log("API Response:", response.data);
                 setConsultations(response.data);
             } catch (error) {
                 console.error('Error fetching consultation status:', error);
@@ -28,35 +28,37 @@ const Status = ({ patientId, userRole }) => {
             {consultations.length === 0 ? (
                 <p className="text-center text-gray-500">No consultations found.</p>
             ) : (
-                <ul className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {consultations.map(consultation => (
-                        <li 
-                            key={consultation.id} 
+                        <div
+                            key={consultation.id}
                             className="p-4 border border-gray-300 rounded-lg shadow-lg bg-white transition-shadow duration-300 hover:shadow-xl"
                         >
-                            {/* If dateTime is available, display the formatted date */}
-                            <h3 className="text-xl font-semibold text-gray-800">
-                                {consultation.dateTime
-                                    ? new Date(consultation.dateTime).toLocaleDateString()
-                                    : 'Date Not Available'}
-                            </h3>
                             <p className="text-gray-700">
-                                Status: <span className={`font-bold ${consultation.status === 'Completed' ? 'text-green-600' : 'text-red-600'}`}>{consultation.status}</span>
+                                Status:
+                                <span className={`font-bold ${consultation.status === 'Completed' ? 'text-green-600' :
+                                        consultation.status === 'Rejected' ? 'text-red-600' :
+                                            consultation.status === 'pending' ? 'text-yellow-600' :
+                                                consultation.status === 'Confirmed' || consultation.status === 'Accepted' ? 'text-blue-600' :
+                                                    'text-gray-700'
+                                    }`}>
+                                    {consultation.status}
+                                </span>
                             </p>
+
+                            <p className="text-gray-700">
+                                Date:
+                                <span className="font-semibold">
+                                    {new Date(consultation.date).toLocaleDateString('en-GB')} 
+                                </span>
+                            </p>
+                            <p className="text-gray-700">StartTime: <span className="font-semibold">{consultation.startTime}</span></p>
+                            <p className="text-gray-700">EndTime: <span className="font-semibold">{consultation.endTime}</span></p>
                             <p className="text-gray-700">Doctor: <span className="font-semibold">{consultation.doctorName}</span></p>
                             <p className="text-gray-700">Specialty: <span className="font-semibold">{consultation.specialty}</span></p>
-
-                            {/* Check for 'startTime' and 'endTime' or use 'dateTime' */}
-                            <p className="text-gray-700">
-                                {consultation.startTime && consultation.endTime
-                                    ? `Time: ${consultation.startTime} to ${consultation.endTime}`
-                                    : consultation.dateTime
-                                    ? `Time: ${new Date(consultation.dateTime).toLocaleTimeString()}`
-                                    : 'Time not available'}
-                            </p>
-                        </li>
+                        </div>
                     ))}
-                </ul>
+                </div>
             )}
         </div>
     );

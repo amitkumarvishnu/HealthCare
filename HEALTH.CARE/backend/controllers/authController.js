@@ -4,23 +4,27 @@ const Doctor = require('../models/Doctor');
 const jwt = require('jsonwebtoken');
 const sendVerificationEmail = require('../email/sendMail');
 
-// Registration
+// Registration...
 const register = async (req, res) => {
-    const { email, username, password, role, specialization, contact } = req.body;
+    const { email, username, password, role, specialization, contact, gender, experience } = req.body;
+    const image = req.file ? req.file.path : null;
 
     console.log('Received registration data:', req.body);
 
-    if (!email || !username || !password || !role) {
-        return res.status(400).json({ error: 'email, username, password, role required' });
+    
+    if (!email || !username || !password || !role || !gender) {
+        return res.status(400).json({ error: 'email, username, password, role, and gender are required' });
     }
 
+   
     if (!['doctor', 'patient'].includes(role)) {
         return res.status(400).json({ error: 'Invalid role' });
     }
 
+   
     if (role === 'doctor') {
-        if (!specialization || !contact) {
-            return res.status(400).json({ error: 'specialization and contact required for doctors' });
+        if (!specialization || !contact || !experience) {
+            return res.status(400).json({ error: 'specialization, contact, and experience are required for doctors' });
         }
     }
 
@@ -36,31 +40,42 @@ const register = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await User.create({ email, username, password: hashedPassword, role });
+        const user = await User.create({
+            email,
+            username,
+            password: hashedPassword,
+            role,
+            gender, 
+        });
 
-        // Generate email verification token
         const verificationToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Send verification email
         await sendVerificationEmail(email, verificationToken);
 
-        // Create doctor record if the user is a doctor
         if (role === 'doctor') {
             const doctor = await Doctor.create({
                 specialization,
                 contactDetails: contact,
-                userId: user.id
+                userId: user.id,
+                image: image,
+                experience: experience,
             });
         }
 
-        res.status(201).json({ userId: user.id, message: 'User registered successfully. Please check your email to verify your account.' });
+        res.status(201).json({
+            userId: user.id,
+            message: 'User registered successfully. Please check your email to verify your account.'
+        });
     } catch (error) {
         console.error('Error in registration:', error);
         res.status(500).json({ error: 'Internal server error', message: error.message });
     }
 };
 
-// Login function
+
+
+
+// Login function...
 const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -74,7 +89,6 @@ const login = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Check if the email is verified
         if (!user.emailVerified) {
             return res.status(400).json({ error: 'Please verify your email first' });
         }
@@ -108,34 +122,29 @@ const login = async (req, res) => {
     }
 };
 
-// Additional email verification endpoint
+//email verification...
 const verifyEmail = async (req, res) => {
-    const { token } = req.query; // Get the token from the query parameters
-
+    const { token } = req.query; 
     if (!token) {
         return res.status(400).json({ error: 'Token is required' });
     }
 
     try {
-        // Verify the token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use your JWT secret
-        const userId = decoded.userId; // Extract user ID from the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId; 
 
-        // Find the user by ID
         const user = await User.findByPk(userId);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Check if the email is already verified
         if (user.emailVerified) {
             return res.status(400).json({ error: 'Email already verified' });
         }
 
-        // Update the user's email verification status
         user.emailVerified = true;
-        user.verificationToken = undefined;  // Clear the token after successful verification
+        user.verificationToken = undefined;  
         await user.save();
 
         res.status(200).json({ message: 'Email verified successfully!' });

@@ -13,10 +13,10 @@ const Navbar = ({ token, setToken, role }) => {
   };
 
   return (
-    <nav className="flex items-center justify-between bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 shadow-lg mb-6 rounded-lg">
+    <nav className="flex items-center justify-between bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 shadow-lg mb-6 ">
       <div className="flex items-center space-x-8">
         <Link
-          to="/"
+          // to="/"
           className="text-2xl font-bold tracking-wide text-white hover:text-yellow-300 transition duration-300 ease-in-out"
         >
           Healthcare
@@ -28,14 +28,33 @@ const Navbar = ({ token, setToken, role }) => {
                 <Link
                   to="/doctors"
                   className="text-lg text-white hover:text-yellow-300 transition duration-300 ease-in-out"
-                >
+                  style={{
+                    position: "absolute",
+                    right: "430px",
+                  }}>
                   Find Doctors
                 </Link>
                 <Link
                   to="/status"
                   className="text-lg text-white hover:text-yellow-300 transition duration-300 ease-in-out"
-                >
+                  style={{
+                    position: "absolute",
+                    right: "240px",
+                  }}                >
                   Consultation Status
+                </Link>
+                <Link to="/dashboard">
+                  <img
+                    src="profile.png"
+                    alt="profile"
+                    style={{
+                      height: '40px',
+                      width: '40px',
+                      position: 'absolute',
+                      right: '170px',
+                      top: '40px',
+                    }}
+                  />
                 </Link>
               </>
             )}
@@ -44,14 +63,36 @@ const Navbar = ({ token, setToken, role }) => {
                 <Link
                   to="/doctor-requests"
                   className="text-lg text-white hover:text-yellow-300 transition duration-300 ease-in-out"
+                  style={{
+                    position: "absolute",
+                    right: "420px",
+                  }}
                 >
                   Consultation Requests
                 </Link>
+
                 <Link
                   to="/doctor-timeslots"
                   className="text-lg text-white hover:text-yellow-300 transition duration-300 ease-in-out"
+                  style={{
+                    position: "absolute",
+                    right: "240px",
+                  }}
                 >
                   Manage Time Slots
+                </Link>
+                <Link to="/doctor-dashboard">
+                <img
+                    src="profile.png"
+                    alt="profile"
+                    style={{
+                      height: '40px',
+                      width: '40px',
+                      position: 'absolute',
+                      right: '170px',
+                      top: '40px'
+                    }}
+                  />
                 </Link>
               </>
             )}
@@ -61,12 +102,28 @@ const Navbar = ({ token, setToken, role }) => {
             <Link
               to="/login"
               className="text-lg text-white hover:text-yellow-300 transition duration-300 ease-in-out"
+              style={{
+                height: '40px',
+                width: '40px',
+                fontWeight: 'bold',
+                position: 'absolute',
+                right: '190px',
+                top: '45px'
+              }}
             >
               Login
             </Link>
             <Link
               to="/register"
               className="text-lg text-white hover:text-yellow-300 transition duration-300 ease-in-out"
+              style={{
+                height: '40px',
+                width: '40px',
+                fontWeight: 'bold',
+                position: 'absolute',
+                right: '110px',
+                top: '45px'
+              }}
             >
               Register
             </Link>
