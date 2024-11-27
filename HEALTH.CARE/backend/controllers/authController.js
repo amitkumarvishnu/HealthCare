@@ -9,7 +9,7 @@ const register = async (req, res) => {
     const { email, username, password, role, specialization, contact, gender, experience } = req.body;
     const image = req.file ? req.file.path : null;
 
-    console.log('Received registration data:', req.body);
+    console.log('Received  data:', req.body);
 
     
     if (!email || !username || !password || !role || !gender) {
