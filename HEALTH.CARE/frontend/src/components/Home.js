@@ -56,7 +56,7 @@ const Home = () => {
             Welcome to Healthcare Portal
           </h1>
           <p className="mt-4 text-lg sm:text-xl md:text-2xl">
-            Find the best doctors, schedule consultations, and manage your health.
+            Find the best doctors,  consultations, and manage your health.
           </p>
           <div className="mt-6">
             <Link
