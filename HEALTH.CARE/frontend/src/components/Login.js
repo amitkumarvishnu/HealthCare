@@ -12,7 +12,6 @@ const Login = ({
   setDoctorId,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   // Joi Validation Schema
@@ -52,7 +51,6 @@ const Login = ({
     },
     onSubmit: async (values) => {
       setLoading(true);
-      setError(null);
 
       try {
         const response = await axios.post(
@@ -85,7 +83,8 @@ const Login = ({
       } catch (error) {
         console.error("Login failed", error.response ? error.response.data : error);
         const errorMessage = error.response?.data?.error || "Login failed";
-        setError(errorMessage);
+        // setError(errorMessage);
+        formik.setErrors({ email: errorMessage, password: errorMessage });
       } finally {
         setLoading(false);
       }
@@ -112,14 +111,16 @@ const Login = ({
           </div>
         </div>
 
-        {/* Enhanced Form Container with hover and transition effects */}
         <div className="bg-white p-10 rounded-lg shadow-2xl max-w-md mx-auto transform transition-all duration-300 hover:scale-105 hover:shadow-3xl hover:bg-gray-100">
           <h2 className="text-3xl font-bold text-center text-blue-600 mb-8">
             Login
           </h2>
 
-          {/* Display error message */}
-          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+          {formik.errors.email && formik.errors.password && (
+            <p className="text-red-500 text-center mb-4">
+              {formik.errors.email} {formik.errors.password}
+            </p>
+          )}
 
           <form onSubmit={formik.handleSubmit}>
             <div className="mb-4">
@@ -168,7 +169,6 @@ const Login = ({
               </a>
             </div>
 
-            {/* Enhanced Login Button with hover and transition effects */}
             <button
               type="submit"
               className={`w-full py-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 hover:shadow-md transition duration-300 ${loading ? "opacity-50 cursor-not-allowed" : ""
@@ -193,3 +193,4 @@ const Login = ({
 };
 
 export default Login;
+

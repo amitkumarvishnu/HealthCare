@@ -3,24 +3,22 @@ import { Link } from "react-router-dom";
 import axios from 'axios';
 
 const DoctorDashboard = ({ username }) => {
-    const [doctor, setDoctor] = useState(null); // To store the doctor data
-    const [loading, setLoading] = useState(true); // To handle loading state
-    const [error, setError] = useState(null); // To handle any errors
+    const [doctor, setDoctor] = useState(null); 
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null); 
 
     useEffect(() => {
         const fetchDoctorData = async () => {
             try {
-                // Fetch data from the API
                 const response = await axios.get('http://localhost:5000/api/consultations/doctors/');
-                console.log(response.data); // Log the response to see if the data is correct
+                console.log(response.data);
 
-                // Find the doctor matching the name (instead of username) from the response data
                 const doctorData = response.data.find((doctor) => doctor.name.toLowerCase() === username.toLowerCase());
 
                 if (doctorData) {
-                    setDoctor(doctorData); // Set doctor data in state
+                    setDoctor(doctorData); 
                 } else {
-                    console.log('Available doctors:', response.data.map(doctor => doctor.name)); // Log available doctor names
+                    console.log('Available doctors:', response.data.map(doctor => doctor.name)); 
                     setError('Doctor not found');
                 }
             } catch (err) {
@@ -31,7 +29,7 @@ const DoctorDashboard = ({ username }) => {
         };
 
         fetchDoctorData();
-    }, [username]); // Re-run the effect when the username changes
+    }, [username]); 
 
     if (loading) {
         return <div className="text-center text-2xl text-gray-500">Loading...</div>;
@@ -89,7 +87,7 @@ const DoctorDashboard = ({ username }) => {
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M3 5L5 3L21 19L19 21L5 5L3 7" />
                                 </svg>
-                                <Link className="text-lg font-semibold text-teal-700 hover:text-teal-600">Provide Feedback</Link>
+                                <Link className="text-lg font-semibold text-teal-700 hover:text-teal-600">Feedback</Link>
                             </li>
                         </ul>
                     </div>

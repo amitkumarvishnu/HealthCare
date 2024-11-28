@@ -15,7 +15,7 @@ import DoctorDashboard from "./components/DoctorDashboard";
 import DoctorConsultationRequests from "./components/DoctorConsultationRequests";
 import EmailVerification from "./components/EmailVerification";
 import DoctorTimeSlots from "./components/DoctorTimeSlot";
-import Home from "./components/Home"; 
+import Home from "./components/Home";
 const App = () => {
   const [token, setToken] = useState(null);
   const [patientId, setPatientId] = useState("");
@@ -63,12 +63,10 @@ const App = () => {
   return (
     <Router>
       <div >
-        {/* Show Navbar only when logged in */}
         {token && <Navbar token={token} setToken={handleLogout} role={role} />}
         <Routes>
-          {/* Route for Home - visible to everyone */}
           <Route path="/" element={<Home />} />
-          
+
           {/* Login and Register Routes */}
           <Route
             path="/login"
@@ -90,7 +88,7 @@ const App = () => {
             path="/register"
             element={!token ? <Register /> : <Navigate to="/" />}
           />
-          
+
           {/* Routes for Patient or Doctor Dashboard after login */}
           <Route
             path="/dashboard"
@@ -106,7 +104,7 @@ const App = () => {
               )
             }
           />
-          
+
           <Route
             path="/doctor-dashboard"
             element={
@@ -117,7 +115,7 @@ const App = () => {
               )
             }
           />
-          
+
           <Route
             path="/doctor-timeslots"
             element={
@@ -128,7 +126,7 @@ const App = () => {
               )
             }
           />
-          
+
           <Route
             path="/doctors"
             element={
@@ -139,7 +137,7 @@ const App = () => {
               )
             }
           />
-          
+
           <Route
             path="/status"
             element={
@@ -150,7 +148,7 @@ const App = () => {
               )
             }
           />
-          
+
           <Route
             path="/doctor-requests"
             element={
@@ -161,7 +159,7 @@ const App = () => {
               )
             }
           />
-          
+
           <Route path="/verify-email" element={<EmailVerification />} />
         </Routes>
       </div>
@@ -170,3 +168,4 @@ const App = () => {
 };
 
 export default App;
+

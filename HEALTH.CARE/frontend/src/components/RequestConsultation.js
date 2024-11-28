@@ -90,7 +90,6 @@ const RequestConsultation = ({ patientId, doctorId, timeSlot, onClose }) => {
       >
         <h2 className="text-lg font-semibold mb-4">Request a Consultation</h2>
 
-        {/* Display error message if any */}
         {formik.errors.description || formik.errors.images ? (
           <div className="text-red-500 mb-4">
             {formik.errors.description || formik.errors.images}

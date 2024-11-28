@@ -8,7 +8,6 @@ const EmailVerification = () => {
     const location = useLocation();
     const navigate = useNavigate(); 
 
-    // Memoize the verifyEmail function to prevent unnecessary re-renders
     const verifyEmail = useCallback(async (token) => {
         try {
             const response = await axios.get('http://localhost:5000/api/auth/verify-email', {
@@ -23,7 +22,7 @@ const EmailVerification = () => {
           
             setTimeout(() => {
                 navigate('/login');
-            }, 2000); // 2 seconds delay before redirect
+            }, 2000); 
         } catch (error) {
             console.error('Error response from server:', error.response);
             if (error.response && error.response.data.error === 'Email already verified') {

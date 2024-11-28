@@ -110,12 +110,12 @@ const Register = () => {
     formData.append("username", values.username);
     formData.append("password", values.password);
     formData.append("role", values.role);
-    formData.append("gender", values.gender); // Add gender to the form data
+    formData.append("gender", values.gender); 
 
     if (values.role === "doctor" && doctorInfo) {
       formData.append("specialization", doctorInfo.specialization);
       formData.append("contact", doctorInfo.contact);
-      formData.append("experience", doctorInfo.experience); // Add experience to the form data
+      formData.append("experience", doctorInfo.experience); 
       if (doctorInfo.image) {
         formData.append("image", doctorInfo.image);
       }
