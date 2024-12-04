@@ -4,7 +4,7 @@ A healthcare web application built using **React**, **Node.js**, **Express**, **
 
 ## Features
 
-- **User Registration**: Users can sign up with their email and password.
+- **User Registration**: Users can sign up with their email and password by using their role.
 - **Email Verification**: An email with a verification link is sent to users upon registration.
 - **Patient-Doctor Consultation**: 
   - Patients can book consultations by sending their reasons, descriptions, and images (uploaded via Multer).
