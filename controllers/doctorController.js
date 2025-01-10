@@ -9,9 +9,10 @@ exports.getConsultationRequests = async (req, res) => {
     }
 
     const doctorId = req.user.doctorId;
-    const baseUrl = 'http://localhost:5000/';
+    const baseUrl = 'http://localhost:5000/uploads'; 
 
     try {
+        // Fetch consultations from the database with patient info
         const consultations = await Consultation.findAll({
             where: { doctorId },
             include: [{ model: User, as: 'Patient', attributes: ['id', 'username', 'email'] }],
@@ -21,19 +22,29 @@ exports.getConsultationRequests = async (req, res) => {
             return res.status(404).json({ message: 'No consultation requests found.' });
         }
 
-        const response = consultations.map(consultation => ({
-            id: consultation.id,
-            patientId: consultation.patientId,
-            doctorId: consultation.doctorId,
-            status: consultation.status,
-            imageUrls: Array.isArray(consultation.imageUrls) ? consultation.imageUrls.map(url => `${baseUrl}${url.replace(/\\/g, '/')}`) : [],
-            patientUsername: consultation.Patient.username,
-            patientEmail: consultation.Patient.email,
-            description: consultation.description,
-            date: consultation.date,
-            startTime: consultation.startTime,
-            endTime: consultation.endTime,
-        }));
+        // Transform the consultations data to include proper image URLs
+        const response = consultations.map((consultation) => {
+            const imageUrls = Array.isArray(consultation.imageUrls)
+                ? consultation.imageUrls.map((url) => {
+                    const urlParts = url.split('\\');
+                    return `${baseUrl}/${urlParts[urlParts.length - 1]}`;
+                })
+                : []; // Default to empty array if no image URLs
+
+            return {
+                id: consultation.id,
+                patientId: consultation.patientId,
+                doctorId: consultation.doctorId,
+                status: consultation.status,
+                imageUrls,
+                patientUsername: consultation.Patient?.username || 'Unknown', // Handle missing patient data
+                patientEmail: consultation.Patient?.email || 'Unknown',
+                description: consultation.description || 'No description provided',
+                date: consultation.date || null,
+                startTime: consultation.startTime || null,
+                endTime: consultation.endTime || null,
+            };
+        });
 
         res.json(response);
     } catch (error) {
@@ -41,6 +52,8 @@ exports.getConsultationRequests = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch requests' });
     }
 };
+
+
 
 // Update consultation status
 exports.updateConsultationStatus = async (req, res) => {
